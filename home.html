@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vault · Browse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+      --red:#e50914;
+      --red-dim:rgba(229,9,20,0.15);
+      --bg:#080808;
+      --surface:#111;
+      --card:#141414;
+      --border:rgba(255,255,255,0.06);
+      --text:#fff;
+      --muted:rgba(255,255,255,0.45);
+      --muted2:rgba(255,255,255,0.2);
+    }
+
+    html{scroll-behavior:smooth}
+
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Outfit',sans-serif;
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::after{
+      content:'';
+      position:fixed;inset:0;
+      pointer-events:none;z-index:0;
+      opacity:0.025;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:200px;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar{
+      position:fixed;top:0;left:0;right:0;
+      height:64px;z-index:100;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 40px;
+      background:linear-gradient(to bottom,rgba(8,8,8,0.98) 70%,transparent);
+      border-bottom:1px solid rgba(255,255,255,0.04);
+    }
+
+    .logo{
+      display:flex;align-items:center;gap:10px;
+      text-decoration:none;
+    }
+    .logo-box{
+      width:32px;height:32px;
+      background:var(--red);
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;font-weight:700;
+    }
+    .logo-text{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:20px;letter-spacing:0.14em;
+      color:var(--text);
+    }
+
+    .topbar-right{display:flex;align-items:center;gap:20px;}
+
+    .member-tag{
+      font-size:9px;letter-spacing:0.22em;text-transform:uppercase;
+      color:var(--muted);border:1px solid rgba(255,255,255,0.1);
+      padding:5px 12px;
+    }
+
+    .logout-btn{
+      background:none;border:none;cursor:pointer;
+      color:var(--muted);font-family:'Outfit',sans-serif;
+      font-size:9px;letter-spacing:0.2em;text-transform:uppercase;
+      padding:5px 0;transition:color .25s;
+      display:flex;align-items:center;gap:6px;
+    }
+    .logout-btn:hover{color:var(--red);}
+    .logout-btn svg{width:13px;height:13px;fill:currentColor;}
+
+    /* ── HERO HEADER ── */
+    .hero{
+      position:relative;
+      padding:130px 40px 64px;
+      overflow:hidden;
+    }
+
+    .hero-bg{
+      position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -20%, rgba(229,9,20,0.1) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 90% 80%, rgba(229,9,20,0.04) 0%, transparent 50%);
+    }
+
+    /* horizontal scan lines */
+    .hero-lines{
+      position:absolute;inset:0;
+      background:repeating-linear-gradient(
+        180deg,
+        transparent 0px,transparent 40px,
+        rgba(255,255,255,0.012) 40px,rgba(255,255,255,0.012) 41px
+      );
+      pointer-events:none;
+    }
+
+    .hero-inner{
+      position:relative;z-index:1;
+      max-width:1200px;margin:0 auto;
+      display:flex;align-items:flex-end;justify-content:space-between;
+      gap:24px;flex-wrap:wrap;
+    }
+
+    .hero-left{}
+
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:10px;
+      font-size:9px;letter-spacing:0.3em;text-transform:uppercase;
+      color:var(--red);margin-bottom:18px;
+    }
+    .hero-eyebrow::before{
+      content:'';width:24px;height:1px;background:var(--red);
+    }
+
+    .hero-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(48px,6vw,80px);
+      letter-spacing:0.04em;line-height:0.9;
+      color:var(--text);
+    }
+    .hero-title span{color:var(--red);}
+
+    .hero-sub{
+      margin-top:16px;
+      font-size:12px;letter-spacing:0.14em;
+      text-transform:uppercase;color:var(--muted);
+      font-weight:300;
+    }
+
+    .hero-count{
+      text-align:right;
+    }
+    .hero-count .big-num{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:72px;letter-spacing:-2px;
+      color:transparent;
+      -webkit-text-stroke:1px rgba(229,9,20,0.4);
+      line-height:1;display:block;
+    }
+    .hero-count .num-label{
+      font-size:9px;letter-spacing:0.24em;text-transform:uppercase;
+      color:var(--muted2);
+    }
+
+    /* ── DIVIDER ── */
+    .divider{
+      max-width:1200px;margin:0 auto;
+      height:1px;
+      background:linear-gradient(90deg,var(--red),rgba(229,9,20,0.1),transparent);
+    }
+
+    /* ── GRID SECTION ── */
+    .grid-section{
+      padding:48px 40px 100px;
+      max-width:1200px;margin:0 auto;
+      position:relative;z-index:1;
+    }
+
+    .grid-header{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:32px;
+    }
+    .grid-label{
+      font-size:9px;letter-spacing:0.26em;text-transform:uppercase;
+      color:var(--muted);display:flex;align-items:center;gap:10px;
+    }
+    .grid-label::after{
+      content:'';flex:1;min-width:40px;height:1px;background:var(--border);
+    }
+    .grid-sort{
+      font-size:9px;letter-spacing:0.18em;text-transform:uppercase;
+      color:var(--muted2);
+    }
+
+    /* ── ACTRESS GRID ── */
+    .actress-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:16px;
+    }
+
+    /* ── ACTRESS CARD ── */
+    .actress-card{
+      position:relative;
+      display:block;
+      text-decoration:none;
+      color:var(--text);
+      background:var(--card);
+      border:1px solid var(--border);
+      overflow:hidden;
+      cursor:pointer;
+      transition:
+        transform .35s cubic-bezier(0.16,1,0.3,1),
+        box-shadow .35s,
+        border-color .35s;
+      animation:cardIn .6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .actress-card:hover{
+      transform:translateY(-6px) scale(1.01);
+      border-color:rgba(229,9,20,0.45);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.7),
+        0 0 0 1px rgba(229,9,20,0.2),
+        0 0 40px rgba(229,9,20,0.06);
+    }
+
+    /* staggered animation */
+    .actress-card:nth-child(1){animation-delay:.04s}
+    .actress-card:nth-child(2){animation-delay:.08s}
+    .actress-card:nth-child(3){animation-delay:.12s}
+    .actress-card:nth-child(4){animation-delay:.16s}
+    .actress-card:nth-child(5){animation-delay:.20s}
+    .actress-card:nth-child(6){animation-delay:.24s}
+    .actress-card:nth-child(7){animation-delay:.28s}
+    .actress-card:nth-child(8){animation-delay:.32s}
+    .actress-card:nth-child(9){animation-delay:.36s}
+    .actress-card:nth-child(10){animation-delay:.40s}
+
+    /* card visual area */
+    .card-visual{
+      position:relative;
+      height:200px;
+      overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+    }
+
+    .card-gradient{
+      position:absolute;inset:0;
+      transition:opacity .4s;
+    }
+
+    /* subtle grid pattern */
+    .card-pattern{
+      position:absolute;inset:0;
+      opacity:0;
+      transition:opacity .4s;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);
+      background-size:20px 20px;
+    }
+    .actress-card:hover .card-pattern{opacity:1;}
+
+    /* big initials */
+    .card-initials{
+      position:relative;z-index:1;
+      font-family:'Bebas Neue',sans-serif;
+      font-size:88px;
+      letter-spacing:-3px;
+      line-height:1;
+      color:rgba(255,255,255,0.08);
+      transition:color .4s, transform .4s;
+      user-select:none;
+    }
+    .actress-card:hover .card-initials{
+      color:rgba(255,255,255,0.14);
+      transform:scale(1.05);
+    }
+
+    /* hover overlay with name */
+    .card-hover-overlay{
+      position:absolute;inset:0;z-index:2;
+      background:linear-gradient(to top,rgba(8,8,8,0.9) 0%,rgba(229,9,20,0.12) 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+      padding:20px 16px;
+      opacity:0;
+      transition:opacity .35s;
+    }
+    .actress-card:hover .card-hover-overlay{opacity:1;}
+
+    .hover-play{
+      width:44px;height:44px;
+      background:rgba(229,9,20,0.9);
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      margin-bottom:12px;
+      transform:scale(0.8);
+      transition:transform .3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .actress-card:hover .hover-play{transform:scale(1);}
+    .hover-play::after{
+      content:'';
+      border-left:14px solid #fff;
+      border-top:8px solid transparent;
+      border-bottom:8px solid transparent;
+      margin-left:2px;
+    }
+
+    .hover-cta{
+      font-size:9px;letter-spacing:0.22em;text-transform:uppercase;
+      color:rgba(255,255,255,0.7);
+    }
+
+    /* top-right badge */
+    .card-badge{
+      position:absolute;top:10px;right:10px;z-index:3;
+      font-size:7px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;
+      padding:3px 8px;
+      background:rgba(229,9,20,0.85);
+      color:#fff;
+    }
+
+    /* red left border on hover */
+    .actress-card::before{
+      content:'';
+      position:absolute;left:0;top:0;bottom:0;
+      width:2px;
+      background:var(--red);
+      transform:scaleY(0);
+      transition:transform .35s cubic-bezier(0.16,1,0.3,1);
+      z-index:4;
+    }
+    .actress-card:hover::before{transform:scaleY(1);}
+
+    /* card info */
+    .card-info{
+      padding:16px 18px 18px;
+      position:relative;
+    }
+
+    .card-info::before{
+      content:'';
+      position:absolute;top:0;left:0;right:0;
+      height:1px;
+      background:linear-gradient(90deg,var(--red),transparent);
+      opacity:0;
+      transition:opacity .35s;
+    }
+    .actress-card:hover .card-info::before{opacity:1;}
+
+    .card-name{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:20px;letter-spacing:0.07em;
+      color:var(--text);line-height:1;
+      transition:color .3s;
+    }
+    .actress-card:hover .card-name{color:#fff;}
+
+    .card-meta-row{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-top:8px;
+    }
+
+    .card-tag{
+      font-size:8px;letter-spacing:0.16em;text-transform:uppercase;
+      color:var(--red);border:1px solid rgba(229,9,20,0.3);
+      padding:2px 8px;
+    }
+
+    .card-arrow{
+      font-size:14px;color:var(--muted2);
+      transform:translateX(-4px);
+      transition:color .3s,transform .3s;
+    }
+    .actress-card:hover .card-arrow{
+      color:var(--red);transform:translateX(0);
+    }
+
+    /* ── FOOTER ── */
+    .footer{
+      position:relative;z-index:1;
+      border-top:1px solid var(--border);
+      padding:24px 40px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .footer p{
+      font-size:9px;letter-spacing:0.2em;text-transform:uppercase;
+      color:var(--muted2);
+    }
+
+
+    /* ── PHOTO STYLES ── */
+    .card-photo{
+      position:absolute;inset:0;
+      width:100%;height:100%;
+      object-fit:cover;object-position:top center;
+      display:block;
+      transition:transform .5s cubic-bezier(0.16,1,0.3,1), filter .4s;
+    }
+    .actress-card:hover .card-photo{
+      transform:scale(1.06);
+      filter:brightness(0.65) saturate(0.8);
+    }
+    .card-photo-overlay{
+      position:absolute;inset:0;
+      opacity:0.35;
+      mix-blend-mode:multiply;
+    }
+    .card-photo-fallback{
+      position:absolute;inset:0;
+    }
+    .card-initials-overlay{
+      position:absolute;
+      bottom:8px;right:10px;
+      font-size:52px;
+      color:rgba(255,255,255,0.12);
+      z-index:1;
+    }
+
+    @keyframes cardIn{
+      from{opacity:0;transform:translateY(28px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    @media(max-width:768px){
+      .topbar{padding:0 20px;}
+      .hero{padding:110px 20px 48px;}
+      .grid-section{padding:32px 20px 80px;}
+      .hero-count{display:none;}
+      .actress-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+      .card-visual{height:160px;}
+      .card-initials{font-size:68px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="logo" href="home.html">
+    <div class="logo-box">▶</div>
+    <span class="logo-text">VAULT</span>
+  </a>
+  <div class="topbar-right">
+    <span class="member-tag">Members Area</span>
+    <button class="logout-btn" onclick="logout()">
+      <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      Sign Out
+    </button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Exclusive Content</div>
+      <div class="hero-title">Browse<br><span>Actresses</span></div>
+      <div class="hero-sub">Select a profile to view all videos</div>
+    </div>
+    <div class="hero-count">
+      <span class="big-num">10</span>
+      <span class="num-label">Profiles Available</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider" style="padding:0 40px;max-width:none;">
+  <div style="max-width:1200px;margin:0 auto;height:1px;background:linear-gradient(90deg,var(--red),rgba(229,9,20,0.1),transparent);"></div>
+</div>
+
+<!-- GRID -->
+<div class="grid-section">
+  <div class="grid-header">
+    <div class="grid-label">All Profiles</div>
+    <div class="grid-sort">A — Z</div>
+  </div>
+
+  <div class="actress-grid">
+
+    <!-- Ari Kytsya -->
+    <a class="actress-card" href="ari-kytsya.html">
+      <div class="card-visual">
+        <img class="card-photo" src="arykytsya_cover.png" alt="AK" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#060c18 0%,#0e1a30 50%,#1a2848 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#060c18 0%,#0e1a30 50%,#1a2848 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">AK</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Ari Kytsya</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Brandi Love -->
+    <a class="actress-card" href="brandi-love.html">
+      <div class="card-visual">
+        <img class="card-photo" src="brandilove_cover.png" alt="BL" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#080e18 0%,#0d1828 50%,#162038 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#080e18 0%,#0d1828 50%,#162038 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">BL</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Brandi Love</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Camnair -->
+    <a class="actress-card" href="camnair.html">
+      <div class="card-visual">
+        <img class="card-photo" src="camnair_cover.png" alt="CM" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#060e08 0%,#0e1e10 50%,#162818 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#060e08 0%,#0e1e10 50%,#162818 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">CM</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Camnair</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Cory Chase -->
+    <a class="actress-card" href="cory-chase.html">
+      <div class="card-visual">
+        <img class="card-photo" src="corychase_cover.png" alt="CC" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#140a00 0%,#201400 50%,#301e08 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#140a00 0%,#201400 50%,#301e08 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">CC</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Cory Chase</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Holly Hotwife -->
+    <a class="actress-card" href="holly-hotwife.html">
+      <div class="card-visual">
+        <img class="card-photo" src="hollyhotwife_cover.png" alt="HH" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#140600 0%,#201000 50%,#2c1800 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#140600 0%,#201000 50%,#2c1800 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">HH</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Holly Hotwife</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Jameliz -->
+    <a class="actress-card" href="jameliz.html">
+      <div class="card-visual">
+        <img class="card-photo" src="jameliz_cover.png" alt="JZ" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#061414 0%,#0e2222 50%,#163030 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#061414 0%,#0e2222 50%,#163030 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">JZ</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Jameliz</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Nicole Aniston -->
+    <a class="actress-card" href="nicole-aniston.html">
+      <div class="card-visual">
+        <img class="card-photo" src="nicoleaniston_cover.png" alt="NA" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#160406 0%,#220810 50%,#300e18 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#160406 0%,#220810 50%,#300e18 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">NA</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+        <div class="card-badge">Top</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Nicole Aniston</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Sara Blonde -->
+    <a class="actress-card" href="sara-blonde.html">
+      <div class="card-visual">
+        <img class="card-photo" src="sarablonde_cover.png" alt="SB" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#121200 0%,#1e1e00 50%,#2a2a08 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#121200 0%,#1e1e00 50%,#2a2a08 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">SB</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Sara Blonde</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Shalina Devine -->
+    <a class="actress-card" href="shalina-devine.html">
+      <div class="card-visual">
+        <img class="card-photo" src="shalinadevine_cover.png" alt="SD" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#120610 0%,#1e0e1e 50%,#2c1430 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#120610 0%,#1e0e1e 50%,#2c1430 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">SD</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Shalina Devine</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Tami Tsunami -->
+    <a class="actress-card" href="tami-tsunami.html">
+      <div class="card-visual">
+        <img class="card-photo" src="tamitsunami_cover.png" alt="TT" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#140008 0%,#200010 50%,#30001c 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#140008 0%,#200010 50%,#30001c 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">TT</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Tami Tsunami</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Private & Members Only · All Rights Reserved</p>
+</div>
+
+<script>
+  if(!sessionStorage.getItem('auth'))window.location.href='index.html';
+  function logout(){sessionStorage.removeItem('auth');window.location.href='index.html';}
+</script>
+</body>
+</html>
