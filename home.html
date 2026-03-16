@@ -192,7 +192,7 @@
     .actress-grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-      gap:16px;
+      gap:24px;
     }
 
     /* ── ACTRESS CARD ── */
@@ -236,7 +236,7 @@
     /* card visual area */
     .card-visual{
       position:relative;
-      height:200px;
+      aspect-ratio:2/3;
       overflow:hidden;
       display:flex;align-items:center;justify-content:center;
     }
@@ -424,8 +424,7 @@
       .hero{padding:110px 20px 48px;}
       .grid-section{padding:32px 20px 80px;}
       .hero-count{display:none;}
-      .actress-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-      .card-visual{height:160px;}
+      .actress-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
       .card-initials{font-size:68px;}
     }
   </style>
