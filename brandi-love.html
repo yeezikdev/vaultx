@@ -28,15 +28,35 @@
     .back-btn{color:var(--muted);text-decoration:none;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;transition:color .2s;}
     .back-btn:hover{color:#fff;}
 
-    /* ── HERO ── */
-    .hero{position:relative;min-height:540px;display:flex;align-items:flex-end;padding:0 52px 56px;overflow:hidden;}
+    /* ── HERO — banner nativo 3002×1116 (ratio ≈ 2.69:1) ── */
+    .hero{
+      position:relative;
+      /* padding-bottom mantiene il ratio esatto del banner */
+      padding-bottom:calc(1116 / 3002 * 100%);
+      display:flex;align-items:flex-end;
+      overflow:hidden;
+    }
+    /* contenuto testo ancorato in basso a sinistra */
+    .hero-content-anchor{
+      position:absolute;inset:0;
+      display:flex;align-items:flex-end;
+      padding:0 52px 56px;
+      z-index:3;
+    }
     .hero-photo-wrap{position:absolute;inset:0;overflow:hidden;}
-    .hero-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block;filter:saturate(0.85);}
+    .hero-photo-wrap img{
+      width:100%;height:100%;
+      object-fit:cover;
+      /* mostra l'intera larghezza; centra verticalmente */
+      object-position:center center;
+      display:block;
+      filter:saturate(0.88);
+    }
     .hero-photo-wrap::after{content:'';position:absolute;inset:0;
       background:
-        linear-gradient(90deg,rgba(10,10,10,0.75) 0%,rgba(10,10,10,0.35) 40%,transparent 70%),
-        linear-gradient(to top,rgba(10,10,10,0.95) 0%,rgba(10,10,10,0.3) 20%,transparent 40%),
-        linear-gradient(to bottom,rgba(10,10,10,0.4) 0%,transparent 15%);}
+        linear-gradient(90deg,rgba(10,10,10,0.78) 0%,rgba(10,10,10,0.35) 38%,transparent 65%),
+        linear-gradient(to top,rgba(10,10,10,0.95) 0%,rgba(10,10,10,0.25) 22%,transparent 42%),
+        linear-gradient(to bottom,rgba(10,10,10,0.35) 0%,transparent 14%);}
     .hero-content{position:relative;z-index:2;max-width:580px;animation:fadeUp .8s cubic-bezier(0.16,1,0.3,1) both;}
     .hero-badge{display:inline-flex;font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--red);border:1px solid rgba(229,9,20,0.4);padding:5px 14px;margin-bottom:18px;}
     .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(58px,8vw,92px);letter-spacing:0.04em;line-height:0.9;margin-bottom:14px;}
@@ -193,7 +213,7 @@
     @keyframes scaleIn{from{opacity:0;transform:scale(0.94)}to{opacity:1;transform:scale(1)}}
 
     @media(max-width:700px){
-      .hero{padding:80px 22px 44px;}
+      .hero-content-anchor{padding:60px 22px 36px;}
       .section{padding:28px 18px 60px;}
       .topbar{padding:0 18px;}
       .video-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
@@ -265,7 +285,8 @@
   <div class="hero-photo-wrap">
     <img src="brandilove_banner.png?v=2" alt="Brandi Love" onerror="this.parentElement.style.display='none'"/>
   </div>
-  <div class="hero-content">
+  <div class="hero-content-anchor">
+    <div class="hero-content">
     <div class="hero-badge">★ Actress Profile</div>
     <h1>Brandi<br><span>Love</span></h1>
     <div class="hero-meta">
@@ -281,8 +302,9 @@
       </a>
       <button class="btn-scroll" onclick="document.getElementById('videos').scrollIntoView({behavior:'smooth'})">▶ Watch Videos</button>
     </div>
-  </div>
-</div>
+    </div><!-- /.hero-content -->
+  </div><!-- /.hero-content-anchor -->
+</div><!-- /.hero -->
 
 <!-- ── VIDEO SECTION ── -->
 <div class="section" id="videos">
