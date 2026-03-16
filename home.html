@@ -192,7 +192,7 @@
     .actress-grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-      gap:24px;
+      gap:16px;
     }
 
     /* ── ACTRESS CARD ── */
@@ -236,7 +236,7 @@
     /* card visual area */
     .card-visual{
       position:relative;
-      aspect-ratio:2/3;
+      height:200px;
       overflow:hidden;
       display:flex;align-items:center;justify-content:center;
     }
@@ -400,7 +400,7 @@
     }
     .card-photo-overlay{
       position:absolute;inset:0;
-      opacity:0;
+      opacity:0.35;
       mix-blend-mode:multiply;
     }
     .card-photo-fallback{
@@ -424,7 +424,8 @@
       .hero{padding:110px 20px 48px;}
       .grid-section{padding:32px 20px 80px;}
       .hero-count{display:none;}
-      .actress-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
+      .actress-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+      .card-visual{height:160px;}
       .card-initials{font-size:68px;}
     }
   </style>
@@ -457,7 +458,7 @@
       <div class="hero-sub">Select a profile to view all videos</div>
     </div>
     <div class="hero-count">
-      <span class="big-num">10</span>
+      <span class="big-num">11</span>
       <span class="num-label">Profiles Available</span>
     </div>
   </div>
@@ -690,6 +691,27 @@
       </div>
       <div class="card-info">
         <div class="card-name">Tami Tsunami</div>
+        <div class="card-meta-row">
+          <span class="card-tag">Actress</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+    </a>
+    <!-- Venera Maxima -->
+    <a class="actress-card" href="venera-maxima.html">
+      <div class="card-visual">
+        <img class="card-photo" src="veneramaxima_cover.png" alt="Venera Maxima" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="card-gradient card-photo-fallback" style="background:linear-gradient(145deg,#16060c 0%,#22101a 50%,#301428 100%);display:none"></div>
+        <div class="card-gradient card-photo-overlay" style="background:linear-gradient(145deg,#16060c 0%,#22101a 50%,#301428 100%)"></div>
+        <div class="card-pattern"></div>
+        <div class="card-initials card-initials-overlay">VM</div>
+        <div class="card-hover-overlay">
+          <div class="hover-play"></div>
+          <div class="hover-cta">View Videos</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">Venera Maxima</div>
         <div class="card-meta-row">
           <span class="card-tag">Actress</span>
           <span class="card-arrow">→</span>
